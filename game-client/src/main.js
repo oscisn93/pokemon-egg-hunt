@@ -3,12 +3,12 @@ import kaboom from "kaboom";
 kaboom();
 
 setBackground(5,5,5, 0.5);
-loadSprite("bean", "sprites/bean.png");
+loadSprite("bean", "sprites/squirtle.png");
 
 let score = 0;
 
 scene("game", () => {
-  setGravity(1600);
+  setGravity(1300);
 
   const scoreLabel = add([
     text(score),
@@ -24,6 +24,7 @@ scene("game", () => {
     sprite("bean"),
     pos(80, 40),
     area(),
+    scale(0.20),
     body(),
   ]);
 
@@ -80,6 +81,7 @@ scene("lose", () => {
     pos(center()),
     anchor("center"),
   ]);
+  score = 0;
   onKeyPress("space", () => go("game"));
   onClick(() => go("game"));
 });
