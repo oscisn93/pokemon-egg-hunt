@@ -3,7 +3,6 @@ import kaboom from 'kaboom';
 const engine = kaboom({
   global: true,
   canvas: document.getElementById('game'),
-  fullscreen: true,
   scale: 1,
   debug: true,
   clearColor: [0, 0, 0, 1],
@@ -38,3 +37,4 @@ export const debug = engine.debug;
 export const text = engine.text;
 export const width = engine.width;
 export const height = engine.height;
+export const anchor = engine.anchor;

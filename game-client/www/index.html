@@ -4,32 +4,34 @@
 <head>
 	<title>Pokemon Egg Hunt</title>
 	<link rel="stylesheet" href="styles.css">
+	<script src="htmx.min.js"></script>
+	<!-- <script src='ws-client.js'></script> -->
 </head>
 
 <body>
 	<header class="logo-container">
 		<img class="logo-img" src="sprites/logo.png" alt="Pokemon Logo" />
 	</header>
-	<div class="signup-container">
-		<h1>Register or Log In to Start Playing</h1>
-		<form id="create-player-form">
-			<div class="form-group">
-				<label for="username">Username</label>
-				<input type="text" id="username" name="username" required>
-			</div>
-			<!-- <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
-            </div> -->
-			<div class="form-group">
-				<label for="password">Password</label>
-				<input type="password" id="password" name="password" required>
-			</div>
-			<button type="submit">Sign Up</button>
-		</form>
-	</div>
-	<!-- <script src="main.js"></script> -->
-	<script src='ws-client.js'></script>
+	<main id="content">
+		<div class="signup-container">
+			<h1>Register or Login</h1>
+			<form hx-post="/api/auth/" hx-target="#content" hx-swap="outerHTML" id="create-player-form">
+				<div class="form-group">
+					<label for="username">Username</label>
+					<input type="text" id="username" name="username" required>
+				</div>
+				<!-- <div class="form-group">
+					<label for="email">Email</label>
+					<input type="email" id="email" name="email" required>
+				</div> -->
+				<div class="form-group">
+					<label for="password">Password</label>
+					<input type="password" id="password" name="password" required>
+				</div>
+				<button type="submit">Sign Up</button>
+			</form>
+		</div>
+	</main>
 </body>
 
 </html>

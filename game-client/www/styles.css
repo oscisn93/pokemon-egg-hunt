@@ -2,7 +2,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
     sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   color: #f6f8fa;
-  background-color: #24292e;
+  background-color: #54292e;
   padding: 20px;
   font-weight: bold;
 }
@@ -17,21 +17,22 @@ body {
 .logo-img {
   width: 50%;
   margin: 2em;
-  border-radius: 1.25em;
-  border: 0.4em solid #000;
+  border-radius: 0.5em;
+  border: 0.1em solid rgb(187, 16, 50);
 }
 
 .signup-container {
   background-color: #222222;
   border: 1px solid #454545;
-  border-radius: 6px;
+  border-radius: 0.5em;
   max-width: 400px;
   margin: 40px auto;
   padding: 20px;
-  filter: drop-shadow(0 0 0.05em crimson);
+  filter: drop-shadow(0 0 0.3em rgb(32, 11, 15));
 }
 
 h1 {
+  text-align: center;
   font-size: 24px;
   margin-bottom: 20px;
 }
@@ -67,4 +68,22 @@ button {
 
 button:hover {
   background-color: #224466;
+}
+
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#game {
+  max-width: 90%;
+  min-height: 50em;
+}
+
+@media screen and (max-width: 600px) {
+  .logo-img {
+    width: 90%;
+  }
 }

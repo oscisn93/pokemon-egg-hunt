@@ -1,13 +1,13 @@
-import {add, addLevel, area, body, center, color, height, onKeyPress, rect, scale, setBackground, sprite, text, width, z} from './engine.js';
+import {add, addLevel, area, body, center,anchor, color, height, onKeyPress, rect, scale, setBackground, sprite, text, width, z} from './engine.js';
 
 export function homeScene() {
   const c = center();
   setBackground(6, 25, 50);
   const homeButton = add([
     sprite('home-button'),
-    pos(0, 0),
-    width(),
-    height(),
+    pos(width()/2, height()/2),
+    scale(0.5),
+    anchor('center'),
   ]);
   onKeyPress('space', () => {
     go('forest');

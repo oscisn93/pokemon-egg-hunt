@@ -14,6 +14,7 @@ const options: ServerOptions = {
 };
 
 const sockets = new Map<string, WebSocket>();
+const players = new Map<string, string>();
 
 const app = new Application();
 const router = new Router();
@@ -26,6 +27,27 @@ async function staticFileHandler(ctx: Context, next: Next) {
       root: `${Deno.cwd()}/game-client/www`,
       index: "index.html",
     });
+  }
+}
+
+// Oversimplified authentication. uses a map to store username and password
+// TODO: use Deno KV if deployed with Deno Deploy
+async function authUser(ctx: Context) {
+  const gameComponent = "<div class='game-container'><canvas id='game'></canvas></div><script src='main.js'></scritp>";
+  const data = await ctx.request.body.formData();
+  if (data){
+    const username = data.get("username") as string;
+    const password = data.get("password") as string;
+    if (players.has(username)) {
+      if (players.get(username) === password) {
+        ctx.response.body = gameComponent;
+      } else {
+        ctx.throw(401, "Invalid password");
+      }
+    } else {
+      players.set(username, password);
+      ctx.response.body = gameComponent;
+    }
   }
 }
 
@@ -54,6 +76,7 @@ function WsHandler(ctx: Context) {
 }
 
 router.get("/ws", WsHandler);
+router.post("/api/auth/", authUser);
 app.use(router.routes());
 app.use(staticFileHandler);
 
