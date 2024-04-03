@@ -1,62 +1,62 @@
-interface Message {
-  socketID: string;
-  data: string;
-}
+import {
+  Application,
+  Context,
+  Router,
+  send,
+  Next,
+} from "https://deno.land/x/oak@14.2.0/mod.ts";
+import { v1 } from "https://deno.land/std@0.207.0/uuid/mod.ts";
+import { bgGreen } from "https://deno.land/std@0.221.0/fmt/colors.ts";
+import { ServerOptions, SocketMessage } from "./types.d.ts";
 
-// async function handle(conn: Deno.Conn) {
-//   const httpConn = Deno.serveHttp(conn);
-//   for await (const requestEvent of httpConn) {
-//     await requestEvent.respondWith(handleReq(requestEvent));
-//   }
-// }
+const options: ServerOptions = {
+  port: 3000,
+};
 
-// function handleReq(req: Request): Response {
-//   const upgrade = req.headers.get("upgrade") || "";
-//   if (upgrade.toLowerCase() != "websocket") {
-//     return new Response("Not a WebSocket request", { status: 400 });
-//   }
+const sockets = new Map<string, WebSocket>();
 
-//   const { socket, response } = Deno.upgradeWebSocket(req);
-//   socket.opopen = () => console.log("socket opened");
-//   socket.onmessage = (msg: Message) => { console.log(msg.data)};
-//   socket.onerror = (err) => { console.log(err)};
-//   socket.onclose = () => console.log("socket closed");
-//   return response;
-// }
+const app = new Application();
+const router = new Router();
 
-const port = 3000;
-const server = Deno.listen({ port });
-console.log(`HTTP server running. Access it at: http://localhost:3000/`);
-
-for await (const conn of server) {
-  handleHttp(conn).catch(console.error);
-}
-
-async function handleHttp(conn: Deno.Conn) {
-  const httpConn = Deno.serveHttp(conn);
-  for await (const requestEvent of httpConn) {
-    const dir_path = "/game-client/www/";
-    const url = new URL(requestEvent.request.url);
-    const filename = url.pathname === "/" ? "index.html" : url.pathname;
-    const filepath = `${dir_path}${filename}`;
-    console.log(filepath);
-    // Try opening the file
-    let file;
-    try {
-      file = await Deno.open("." + filepath, { read: true });
-    } catch {
-      // If the file cannot be opened, return a "404 Not Found" response
-      const notFoundResponse = new Response("404 Not Found", { status: 404 });
-      await requestEvent.respondWith(notFoundResponse);
-      continue;
-    }
-
-    // Build a readable stream so the file doesn't have to be fully loaded into
-    // memory while we send it
-    const readableStream = file.readable;
-
-    // Build and send the response
-    const response = new Response(readableStream);
-    await requestEvent.respondWith(response);
+async function staticFileHandler(ctx: Context, next: Next) {
+  if (ctx.request.url.pathname.startsWith("/api/")) {
+    await next();
+  } else {
+    await send(ctx, ctx.request.url.pathname, {
+      root: `${Deno.cwd()}/game-client/www`,
+      index: "index.html",
+    });
   }
 }
+
+function WsHandler(ctx: Context) {
+  if (!ctx.isUpgradable) {
+    ctx.throw(501, "Not Implemented");
+  }
+  const ws = ctx.upgrade();
+  ws.onopen = () => {
+    const socketID = v1.generate() as string;
+    sockets.set(socketID, ws);
+    const message: SocketMessage = { type: "set-client-id", socketID };
+    ws.send(JSON.stringify(message));
+  };
+
+  ws.onmessage = (msg) => {
+    const message: SocketMessage | undefined = JSON.parse(msg.data);
+    if (message?.type === "create-player") {
+      console.log("Username: ", message.playerName);
+    }
+  };
+
+  ws.onclose = () => {
+    console.log("WebSocket closed");
+  };
+}
+
+router.get("/ws", WsHandler);
+app.use(router.routes());
+app.use(staticFileHandler);
+
+console.log(bgGreen(`Server is running on http://localhost:${options.port}`));
+
+await app.listen(options);
