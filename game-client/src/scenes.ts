@@ -1,9 +1,8 @@
-import {add, addLevel, area, body, center,anchor, color, height, onKeyPress, rect, scale, setBackground, sprite, text, width, z} from './engine.js';
+import {add, center,anchor, pos, go, height, onKeyPress, scale, setBackground, sprite, text, width} from './engine.ts';
 
 export function homeScene() {
-  const c = center();
   setBackground(6, 25, 50);
-  const homeButton = add([
+  add([
     sprite('home-button'),
     pos(width()/2, height()/2),
     scale(0.5),
@@ -12,7 +11,7 @@ export function homeScene() {
   onKeyPress('space', () => {
     go('forest');
   });
-}
+};
 
 export function forestScene() {
   //   setBackground(0, 0, 0);
@@ -157,7 +156,7 @@ export function forestScene() {
 
   //   camScale(0.5);
   console.log('Forest Scene');
-}
+};
 
 export function loseScene() {
   const c = center();
@@ -168,4 +167,4 @@ export function loseScene() {
     anchor('center'),
   ]);
   onKeyPress('space', () => go('home'));
-}
+};

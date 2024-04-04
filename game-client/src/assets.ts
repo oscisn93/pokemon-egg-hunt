@@ -1,4 +1,4 @@
-import {loadSprite} from './engine.js';
+import {loadSprite} from './engine.ts';
 
 export function loadAssets() {
   // the home button sprite

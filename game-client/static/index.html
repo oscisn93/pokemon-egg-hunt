@@ -4,7 +4,7 @@
 <head>
 	<title>Pokemon Egg Hunt</title>
 	<link rel="stylesheet" href="styles.css">
-	<script src="htmx.min.js"></script>
+	<script src="js/htmx.min.js"></script>
 	<!-- <script src='ws-client.js'></script> -->
 </head>
 
@@ -15,15 +15,11 @@
 	<main id="content">
 		<div class="signup-container">
 			<h1>Register or Login</h1>
-			<form hx-post="/api/auth/" hx-target="#content" hx-swap="outerHTML" id="create-player-form">
+			<form hx-post="/api/auth/" hx-target="#content" hx-swap="outerHTML" class="create-player-form">
 				<div class="form-group">
 					<label for="username">Username</label>
 					<input type="text" id="username" name="username" required>
 				</div>
-				<!-- <div class="form-group">
-					<label for="email">Email</label>
-					<input type="email" id="email" name="email" required>
-				</div> -->
 				<div class="form-group">
 					<label for="password">Password</label>
 					<input type="password" id="password" name="password" required>
@@ -33,5 +29,4 @@
 		</div>
 	</main>
 </body>
-
 </html>

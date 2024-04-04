@@ -1,6 +1,6 @@
-import {loadAssets} from './assets.js';
-import {go, scene,} from './engine.js';
-import {forestScene, homeScene, loseScene} from './scenes.js';
+import {loadAssets} from './assets.ts';
+import {go, scene,} from './engine.ts';
+import {forestScene, homeScene, loseScene} from './scenes.ts';
 
 function main() {
   loadAssets();
