@@ -17,30 +17,12 @@ import {
   body,
   camScale,
   color,
-  onKeyDown,
-  onKeyRelease,
   z,
-  camPos,
   onUpdate,
   onCollide,
-  shake,
 } from "./engine.ts";
 import { forestMap } from "./maps.ts";
-import {
-  downDown,
-  downPress,
-  downRelease,
-  leftDown,
-  leftPress,
-  leftRelease,
-  rightDown,
-  rightPress,
-  rightRelease,
-  upDown,
-  upPress,
-  upRelease,
-} from "./players.ts";
-import { GameObj } from "npm:kaboom@3000.1.17";
+import Player from "./player.ts";
 
 export function homeScene() {
   setBackground(6, 25, 50);
@@ -85,20 +67,8 @@ export function forestScene() {
       i: () => [sprite("garden", { frame: 8 }), z(-1), scale(1.2)],
     },
   });
-  const p1 = add([
-    sprite("player-m", {
-      animSpeed: 0.5,
-      frame: 0,
-    }),
-    pos(1300, 1300),
-    anchor("center"),
-    scale(2),
-    body(),
-    area(),
-    "player",
-  ]);
-  console.log(p1);
-
+  
+  const player = new Player();
   const fountain = add([
     sprite("fountain", { frame: 0, animSpeed: 0.15 }),
     area(),
@@ -107,39 +77,11 @@ export function forestScene() {
     body({ isStatic: true }),
   ]);
   fountain.play("run");
-
-  const initControls = (player: GameObj) => {
-    onKeyDown("left", () => leftDown(player));
-    onKeyDown("right", () => rightDown(player));
-    onKeyDown("up", () => upDown(player));
-    onKeyDown("down", () => downDown(player));
-
-    onKeyPress("left", () => leftPress(player));
-    onKeyPress("right", () => rightPress(player));
-    onKeyPress("up", () => upPress(player));
-    onKeyPress("down", () => downPress(player));
-
-    onKeyRelease("left", () => leftRelease(player));
-    onKeyRelease("right", () => rightRelease(player));
-    onKeyRelease("up", () => upRelease(player));
-    onKeyRelease("down", () => downRelease(player));
-
-    onUpdate(() => {
-      camPos(player.pos);
-    });
-    onCollide("player", "+", () => {
-      player.stop();
-      shake(0.8);
-    });
-
-    onCollide("player", "*", () => {
-      player.stop();
-      shake(0.8);
-    });
-  };
-
-  initControls(p1);
-  // @ts-ignore: camScale 
+  onUpdate(() => {
+    player.onUpdate();
+  });
+  onCollide("player", "+", () => player.onCollision());
+  onCollide("player", "*", () => player.onCollision());
   camScale(0.5, 0.5);
 }
 

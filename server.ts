@@ -7,39 +7,12 @@ import {
 } from "https://deno.land/x/oak@14.2.0/mod.ts";
 import { v1 } from "https://deno.land/std@0.207.0/uuid/mod.ts";
 import { bgGreen } from "https://deno.land/std@0.221.0/fmt/colors.ts";
-import {
-  ServerOptions,
-  Point,
-  SocketID,
-} from "./types.d.ts";
-import { GameState } from "./game-state.ts";
+import { SocketEventType } from "./game-client/src/enums.ts";
+import { SocketID, ServerOptions, GameLobby, SocketEventMessage } from "./game-client/src/types.ts";
+import GameState from "./state.ts";
 
 const options: ServerOptions = {
   port: 3000,
-};
-
-export enum SocketEventType {
-  PLAYER_JOINED = "player-joined",
-  PLAYER_LEFT = "player-left",
-  PLAYER_MOVED = "player-moved",
-  PLAYER_DIED = "player-died",
-  PLAYER_SCORED = "player-scored",
-  EGG_COLLECTED = "egg-collected",
-  EGG_HATCHED = "egg-hatched",
-  GAME_OVER = "game-over",
-  GAME_START = "game-start",
-}
-
-export interface SocketEventMessage {
-  type: SocketEventType;
-  socketID: SocketID;
-  value?: number | string | Point;
-}
-
-type GameLobby = {
-  gameID: string;
-  players: string[];
-  readyPlayers: Set<string>;
 };
 
 const sockets = new Map<string, WebSocket>();
