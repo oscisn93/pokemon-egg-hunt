@@ -9,4 +9,5 @@ function main() {
   scene('lose', () => loseScene());
   go('home');
 }
+
 main();

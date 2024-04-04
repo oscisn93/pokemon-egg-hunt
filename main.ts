@@ -7,13 +7,43 @@ import {
 } from "https://deno.land/x/oak@14.2.0/mod.ts";
 import { v1 } from "https://deno.land/std@0.207.0/uuid/mod.ts";
 import { bgGreen } from "https://deno.land/std@0.221.0/fmt/colors.ts";
-import { ServerOptions, SocketMessage } from "./types.d.ts";
+import {
+  ServerOptions,
+  Point,
+  SocketID,
+} from "./types.d.ts";
+import { GameState } from "./game-state.ts";
 
 const options: ServerOptions = {
   port: 3000,
 };
 
+export enum SocketEventType {
+  PLAYER_JOINED = "player-joined",
+  PLAYER_LEFT = "player-left",
+  PLAYER_MOVED = "player-moved",
+  PLAYER_DIED = "player-died",
+  PLAYER_SCORED = "player-scored",
+  EGG_COLLECTED = "egg-collected",
+  EGG_HATCHED = "egg-hatched",
+  GAME_OVER = "game-over",
+  GAME_START = "game-start",
+}
+
+export interface SocketEventMessage {
+  type: SocketEventType;
+  socketID: SocketID;
+  value?: number | string | Point;
+}
+
+type GameLobby = {
+  gameID: string;
+  players: string[];
+  readyPlayers: Set<string>;
+};
+
 const sockets = new Map<string, WebSocket>();
+const _games: Record<string, GameLobby | GameState> = {};
 const players = new Map<string, string>();
 
 const app = new Application();
@@ -58,16 +88,19 @@ function WsHandler(ctx: Context) {
   }
   const ws = ctx.upgrade();
   ws.onopen = () => {
-    const socketID = v1.generate() as string;
+    const socketID = v1.generate() as SocketID;
     sockets.set(socketID, ws);
-    const message: SocketMessage = { type: "set-client-id", socketID };
+    const message: SocketEventMessage = {
+      type: SocketEventType.PLAYER_JOINED,
+      socketID,
+    };
     ws.send(JSON.stringify(message));
   };
 
   ws.onmessage = (msg) => {
-    const message: SocketMessage | undefined = JSON.parse(msg.data);
-    if (message?.type === "create-player") {
-      console.log("Username: ", message.playerName);
+    const message: SocketEventMessage | undefined = JSON.parse(msg.data);
+    if (message && message.type === SocketEventType.PLAYER_JOINED) {
+      console.log("Username: ", message.value as string);
     }
   };
 

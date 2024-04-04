@@ -22,7 +22,7 @@ export function loadAssets() {
   loadSprite('garden', 'sprites/garden.png', {sliceX: 3, sliceY: 3});
   // the character sprites - four frames for each direction
   // firered/leafgreen player
-  loadSprite('ash', 'sprites/player-m.png', {
+  loadSprite('player-m', 'sprites/player-m.png', {
     sliceX: 4,
     sliceY: 4,
     anims: {
@@ -33,7 +33,7 @@ export function loadAssets() {
     }
   });
   // sidney (Hoenn elite four)
-  loadSprite('sidney', 'sprites/player-m2.png', {
+  loadSprite('player-m2', 'sprites/player-m2.png', {
     sliceX: 4,
     sliceY: 4,
     anims: {
@@ -44,7 +44,7 @@ export function loadAssets() {
     }
   });
   // dawn (Sinnoh)
-  loadSprite('dawn', 'sprites/player-f2.png', {
+  loadSprite('player-f2', 'sprites/player-f2.png', {
     sliceX: 4,
     sliceY: 4,
     anims: {
@@ -55,7 +55,7 @@ export function loadAssets() {
     }
   });
   // Amy? (idk, got if off Pinterest)
-  loadSprite('amy', 'sprites/player-f.png', {
+  loadSprite('player-f', 'sprites/player-f.png', {
     sliceX: 4,
     sliceY: 4,
     anims: {

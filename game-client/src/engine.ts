@@ -3,11 +3,11 @@ import KaboomGameEngine from "npm:kaboom@3000.1.17";
 const canvasElement = document.getElementById("game") as HTMLCanvasElement;
 
 const engine = KaboomGameEngine({
-    width: 640,
-    height: 480,
-    scale: 1,
-    canvas: canvasElement,
-    background: [0, 0, 0, 1],
+  width: 640,
+  height: 480,
+  scale: 1,
+  canvas: canvasElement,
+  background: [0, 0, 0, 1],
 });
 
 export const scene = engine.scene;
@@ -32,6 +32,7 @@ export const onKeyPress = engine.onKeyPress;
 export const onKeyRelease = engine.onKeyRelease;
 export const onKeyDown = engine.onKeyDown;
 export const onCollide = engine.onCollide;
+export const onUpdate = engine.onUpdate;
 export const mousePos = engine.mousePos;
 export const debug = engine.debug;
 export const text = engine.text;
