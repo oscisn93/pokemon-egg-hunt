@@ -5,7 +5,6 @@
 	<title>Pokemon Egg Hunt</title>
 	<link rel="stylesheet" href="styles.css">
 	<script src="js/htmx.min.js"></script>
-	<!-- <script src='ws-client.js'></script> -->
 </head>
 
 <body>
@@ -15,7 +14,7 @@
 	<main id="content">
 		<div class="signup-container">
 			<h1>Register or Login</h1>
-			<form hx-post="/api/auth/" hx-target="#content" hx-swap="outerHTML" class="create-player-form">
+			<form hx-post="/api/auth/" hx-target="#content" class="create-player-form">
 				<div class="form-group">
 					<label for="username">Username</label>
 					<input type="text" id="username" name="username" required>
@@ -28,5 +27,8 @@
 			</form>
 		</div>
 	</main>
+	<footer>
+		<p>Made with ❤️ by <a href="https://github.com/oscisn93" target="_blank">Oscar Cisneros</a></p>
+	</footer>
 </body>
 </html>
