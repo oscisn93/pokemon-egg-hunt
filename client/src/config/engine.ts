@@ -1,4 +1,4 @@
-import KaboomGameEngine from "npm:kaboom@3000.1.17";
+import * as KaboomGameEngine from "npm:kaboom@3000.1.17";
 
 const canvasElement = document.getElementById("game") as HTMLCanvasElement;
 

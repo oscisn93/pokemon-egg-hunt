@@ -56,19 +56,12 @@ export function forestScene() {
       "*": () => [sprite("tree"), area(), body({ isStatic: true })],
       "+": () => [sprite("tree"), area(), body({ isStatic: true })],
 
-      a: () => [sprite("garden", { frame: 0 }), z(-1), scale(1.2)],
-      b: () => [sprite("garden", { frame: 1 }), z(-1), scale(1.2)],
-      c: () => [sprite("garden", { frame: 2 }), z(-1), scale(1.2)],
-      d: () => [sprite("garden", { frame: 3 }), z(-1), scale(1.2)],
-      e: () => [sprite("garden", { frame: 4 }), z(-1), scale(1.2)],
-      f: () => [sprite("garden", { frame: 5 }), z(-1), scale(1.2)],
-      g: () => [sprite("garden", { frame: 6 }), z(-1), scale(1.2)],
-      h: () => [sprite("garden", { frame: 7 }), z(-1), scale(1.2)],
-      i: () => [sprite("garden", { frame: 8 }), z(-1), scale(1.2)],
+      a: () => [sprite("garden"), z(-1), scale(1.2), pos(512, 760)],
     },
   });
   
   const player = new Player();
+
   const fountain = add([
     sprite("fountain", { frame: 0, animSpeed: 0.15 }),
     area(),

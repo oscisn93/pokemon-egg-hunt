@@ -14,11 +14,12 @@ import {
   shake,
   sprite,
 } from "./engine.ts";
-import { PLAYER_SPEED, PLAYER_ANIM_SPEED, PLAYER_SCALE } from "./constants.ts";
 import { Coordinates } from "./types.ts";
 
 export default class Player {
   private gameObject: GameObj;
+  private eggs: PokemonEgg[] = [];
+  private status: PlayerStatus = PlayerStatus.IDLE;
   public constructor() {
     this.gameObject = add([
       sprite("gameObject-m", {
@@ -66,10 +67,22 @@ export default class Player {
     onKeyDown("up", () => this.gameObject.move(0, -PLAYER_SPEED));
     onKeyDown("down", () => this.gameObject.move(0, PLAYER_SPEED));
 
-    onKeyPress("left", () => this.gameObject.play("walkLeft"));
-    onKeyPress("right", () => this.gameObject.play("walkRight"));
-    onKeyPress("up", () => this.gameObject.play("walkUp"));
-    onKeyPress("down", () => this.gameObject.play("walkDown"));
+    onKeyPress("left", () => {
+      this.gameObject.stop();
+      this.gameObject.play("walkLeft")
+    });
+    onKeyPress("right", () => {
+      this.gameObject.stop();
+      this.gameObject.play("walkRight")
+    });
+    onKeyPress("up", () => {
+      this.gameObject.stop();
+      this.gameObject.play("walkUp")
+    });
+    onKeyPress("down", () => {
+      this.gameObject.stop();
+      this.gameObject.play("walkDown")
+      });
 
     onKeyRelease("left", () => {
       this.gameObject.stop();

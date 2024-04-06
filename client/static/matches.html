@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Pokemon Egg Hunt Matches</title>
+	<link rel="stylesheet" href="styles.css">
+	<script src="js/htmx.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/sse.js"></script>
+</head>
+
+<body>
+	<header class="logo-container">
+		<img class="logo-img" src="sprites/logo.png" alt="Pokemon Logo" />
+	</header>
+	<main id="content">
+        <div class="matches-container">
+            <h1>Matches</h1>
+            <div hx-ext="sse" sse-connect="/matches" sse-swap="MatchCreated" >
+            </div>
+        </div>
+	</main>
+	<footer>
+		<p>Made with ❤️ by <a href="https://github.com/oscisn93" target="_blank">Oscar Cisneros</a></p>
+	</footer>
+</body>
+
+</html>

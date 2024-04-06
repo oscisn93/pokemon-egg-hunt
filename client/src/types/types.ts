@@ -1,4 +1,4 @@
-import { SocketEventType } from "./enums.ts";
+import { GameEventType } from "./enums.ts";
 
 export type Coordinates = {
   x: number;
@@ -11,13 +11,9 @@ export interface ServerOptions {
   port: number;
 }
 
-export interface PingMessage {
-  type: GameEventMessage;
-  gameID: string;
-}
-
 export interface GameEvent {
   type: GameEventType;
+  gameID?: string;
   socketID?: SocketID;
   value?: number | string | Coordinates;
 }
@@ -26,4 +22,10 @@ export type GameLobby = {
   gameID: string;
   players: string[];
   readyPlayers: Set<string>;
+};
+
+export type PokemonEgg = {
+  id: string;
+  pos: Coordinates;
+  status: PokemonEggStatus;
 };
