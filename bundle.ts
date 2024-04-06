@@ -13,7 +13,7 @@ const env = Deno.env.get("DENO_ENV");
 const buildOptions: BuildOptions = {
   plugins: [...denoPlugins({ configPath: "./deno.json" })],
   entryPoints: ["./game-client/src/index.ts"],
-  outdir: "./game-client/static",
+  outdir: "./dist",
   bundle: true,
   platform: "browser",
   format: "esm",
