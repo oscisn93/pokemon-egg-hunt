@@ -1,4 +1,7 @@
-
+import {  loadSprites } from "./config/sprites.ts";
+import { homeScene, forestScene, loseScene } from "./config/scenes.ts";
+import { StateClient } from "./state.ts";
+import { go, scene } from "./config/engine.ts";
 
 export class Game {
   private static instance: Game;
@@ -17,7 +20,7 @@ export class Game {
     return this.gameID;
   }
   private setup() {
-    loadAssets();
+    loadSprites();
     scene("home", () => homeScene());
     scene("forest", () => forestScene());
     scene("lose", () => loseScene());

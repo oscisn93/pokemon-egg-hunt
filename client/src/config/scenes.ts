@@ -22,7 +22,7 @@ import {
   onCollide,
 } from "./engine.ts";
 import { forestMap } from "./maps.ts";
-import Player from "./player.ts";
+import Player from "../entities/player.ts";
 
 export function homeScene() {
   setBackground(6, 25, 50);

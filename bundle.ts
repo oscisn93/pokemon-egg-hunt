@@ -12,16 +12,20 @@ const env = Deno.env.get("DENO_ENV");
 
 const buildOptions: BuildOptions = {
   plugins: [...denoPlugins({ configPath: "./deno.json" })],
-  entryPoints: ["./game-client/src/index.ts"],
-  outdir: "./dist",
+  entryPoints: ["./client/src/**.ts", "./client/src/config/**.ts"],
+  outdir: "./client/dist",
   bundle: true,
+  loader: {
+    ".png": "dataurl",
+    ".ico": "dataurl",
+  },
   platform: "browser",
   format: "esm",
   target: "esnext",
   minify: true,
-  sourcemap: true,
+  sourcemap: false,
   treeShaking: true,
-}
+};
 
 if (env === "DEVELOPMENT") {
   const ctx = await context(buildOptions);

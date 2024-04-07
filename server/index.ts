@@ -5,7 +5,7 @@ import {
   Router,
 } from "https://deno.land/x/oak@14.2.0/mod.ts";
 
-import { authHandler, staticFileHandler } from "./api.ts";
+import { authRequestHandler, staticFileHandler } from "./api.ts";
 import { ServerOptions } from "../client/src/types/types.ts";
 
 const options: ServerOptions = {
@@ -15,7 +15,7 @@ const options: ServerOptions = {
 const app = new Application();
 const router = new Router();
 
-router.post("/api/auth/", authHandler);
+router.post("/api/auth/", authRequestHandler);
 app.use(router.routes());
 app.use(staticFileHandler);
 

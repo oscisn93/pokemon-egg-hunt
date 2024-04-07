@@ -1,23 +1,24 @@
 import { Context, Next, send } from "https://deno.land/x/oak@14.2.0/mod.ts";
-import { Database } from "./database.ts";
 import { ServerSentEvent } from "https://deno.land/x/oak@14.2.0/mod.ts";
-import { GameEventType } from "../client/src/types/enums.ts";
 import { v1 } from "https://deno.land/std@0.207.0/uuid/mod.ts";
-import { readAll } from "https://deno.land/std@0.140.0/streams/conversion.ts";
+
+import { Database } from "./database.ts";
+import { GameEventType } from "../client/src/types/enums.ts";
+
 // middleware for handling static files
 export async function staticFileHandler(ctx: Context, next: Next) {
   if (ctx.request.url.pathname.startsWith("/api/")) {
     await next();
   } else {
     await send(ctx, ctx.request.url.pathname, {
-      root: `${Deno.cwd()}/game-client/static`,
+      root: `${Deno.cwd()}/dist/`,
       index: "index.html",
     });
   }
 }
 
 // TODO: Use Deno KV to store user data
-export async function authHandler(ctx: Context) {
+export async function authRequestHandler(ctx: Context) {
   const data = await ctx.request.body.formData();
   if (data) {
     const username = data.get("username") as string;
@@ -30,11 +31,7 @@ export async function authHandler(ctx: Context) {
         expires: new Date(session.expires),
         httpOnly: true,
       });
-      const matches = "dist/matches.html";
-      const file = await Deno.open(`${Deno.cwd()}/game-client/${matches}`, { read: true});
-      const content = new TextDecoder().decode(await readAll(file));
-      Deno.close(file.rid);
-      ctx.response.body = content;
+      ctx.response.redirect("/matches");
     } catch(e) {
       switch (e.message) {
         case "INVALID_USERNAME":

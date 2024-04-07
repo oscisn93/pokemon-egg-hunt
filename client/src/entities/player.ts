@@ -13,13 +13,14 @@ import {
   scale,
   shake,
   sprite,
-} from "./engine.ts";
-import { Coordinates } from "./types.ts";
+} from "../config/engine.ts";
+import { Coordinates } from "../types/types.ts";
+import { PLAYER_ANIM_SPEED, PLAYER_SCALE, PLAYER_SPEED } from "../config/constants.ts";
+import { PokemonEgg } from "../types/types.ts";
 
 export default class Player {
   private gameObject: GameObj;
   private eggs: PokemonEgg[] = [];
-  private status: PlayerStatus = PlayerStatus.IDLE;
   public constructor() {
     this.gameObject = add([
       sprite("gameObject-m", {

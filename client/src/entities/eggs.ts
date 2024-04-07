@@ -1,4 +1,7 @@
+import { GameObj } from "npm:kaboom@3000.1.17";
 import { add, sprite, pos, anchor, scale, body, area } from "../config/engine.ts";
+import { EGG } from "../config/constants.ts";
+import { Coordinates } from "../types/types.ts";
 
 export default class Egg {
   private gameObject: GameObj;
