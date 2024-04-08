@@ -1,20 +1,29 @@
-import { bgGreen } from "https://deno.land/std@0.221.0/fmt/colors.ts";
+import { Application, Router } from "https://deno.land/x/oak@14.2.0/mod.ts";
 
 import {
-  Application,
-  Router,
-} from "https://deno.land/x/oak@14.2.0/mod.ts";
-
-import { authRequestHandler, staticFileHandler } from "./api.ts";
+  authMiddleware,
+  authRequestHandler,
+  gameRequestHandler,
+  gameEventHandler,
+  inputRequestHandler,
+  inputEventHandler,
+  staticFileHandler,
+} from "./api.ts";
 
 const port = Deno.env.get("PORT") || "3000";
 const app = new Application();
 const router = new Router();
 
-router.post("/api/auth/", authRequestHandler);
-app.use(router.routes());
-app.use(staticFileHandler);
+router.post("/auth", authRequestHandler);
+// user sent events
+router.post("/api/game/:gameID", gameRequestHandler);
+router.post("/api/input/:gameID", inputRequestHandler);
+// server sent events
+router.get("/sse/game/:gameID", gameEventHandler);
+router.get("/sse/input/:gameID", inputEventHandler);
 
-console.log(bgGreen(`Server is running on http://localhost:${port}`));
+app.use(router.routes());
+app.use(authMiddleware);
+app.use(staticFileHandler);
 
 await app.listen({ port: parseInt(port) });

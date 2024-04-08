@@ -2,118 +2,143 @@ import { v1 } from "https://deno.land/std@0.207.0/uuid/mod.ts";
 import { hash, compare } from "https://deno.land/x/bcrypt@v0.4.0/mod.ts";
 import {
   GameEvent,
+  GameStatus,
   InputMessageEvent,
   Session,
   User,
 } from "../shared/types.ts";
+import { accessToken } from "https://deno.land/x/access_token@1.0.0/mod.ts";
 
 const SESSION_LIFESPAN = 1000 * 60 * 60 * 24;
+export const SECRET = "SHHHH...IT's-A_SECRET";
 
-export class Database {
-  private static instance: Database;
-  private constructor() {}
-  public static getInstance() {
-    if (!Database.instance) {
-      Database.instance = new Database();
-    }
-    return Database.instance;
+export async function createUser(user: User & { password: string }) {
+  const passhash = await hash(user.password);
+  user.userID = v1.generate() as string;
+  const kv = await Deno.openKv();
+  kv.set(["passwords", user.userID!], passhash);
+  const result = await kv.set(["users", user.userID], {
+    userID: v1.generate(),
+    username: user.username,
+  });
+  if (!result) {
+    throw new Error("CONFILCT");
   }
-  private async validSessionToken(kv: Deno.Kv, session: Session) {
-    if (session.expires < Date.now()) {
-      return session;
-    }
-    session.expires = Date.now() + SESSION_LIFESPAN;
-    await kv.set(["sessions", session.userID], session);
-    return session;
+  const token = accessToken.generate("uat", SECRET);
+  const session: Session = {
+    userID: user.userID,
+    token,
+  };
+  kv.set(["sessions", token], session, { expireIn: SESSION_LIFESPAN });
+  return session;
+}
+export async function authUser(username: string, password: string) {
+  const kv = await Deno.openKv();
+  const user_result = await kv.get<User>(["users", username]);
+  if (!user_result.value) {
+    throw new Error("INVALID_USERNAME");
   }
-  public async createUser(kv: Deno.Kv, user: User & { password: string }) {
-    const passhash = await hash(user.password);
-    user.userID = v1.generate() as string;
-    kv.set(["passwords", user.userID!], passhash);
-
-    const result = await kv.set(["users", user.userID], {
-      userID: v1.generate(),
-      username: user.username,
-    });
-    if (!result) {
-      throw new Error("CONFILCT");
-    }
-    return this.validSessionToken(kv, {
-      userID: user.userID!,
-      expires: Date.now() + SESSION_LIFESPAN,
-    });
+  const user = user_result.value;
+  const pass_result = await kv.get<string>(["passwords", user.userID!]);
+  if (!pass_result.value) {
+    throw new Error("SERVER_ERROR");
   }
-  public async authUser(kv: Deno.Kv, username: string, password: string) {
-    const user_result = await kv.get<User>(["users", username]);
-    if (!user_result.value) {
-      throw new Error("INVALID_USERNAME");
-    }
-    const user = user_result.value;
-
-    const pass_result = await kv.get<string>(["passwords", user.userID!]);
-    if (!pass_result.value) {
-      throw new Error("SERVER_ERROR");
-    }
-    const passhash = pass_result.value;
-
-    if (await compare(password, passhash)) {
-      const result = await kv.get<Session>(["sessions", user.userID!]);
-      if (!result.value) {
-        return this.validSessionToken(kv, {
-          userID: user.userID!,
-          expires: Date.now() + SESSION_LIFESPAN,
-        });
-      }
-      return this.validSessionToken(kv, result.value!);
+  const passhash = pass_result.value;
+  if (await compare(password, passhash)) {
+    let session: Session | undefined;
+    const result = await kv.get<Session>(["sessions", user.userID!]);
+    if (!result.value) {
+      const token = accessToken.generate("uat", SECRET);
+      session = {
+        userID: user.userID!,
+        token,
+      };
+      kv.set(["sessions", user.userID!], session, {
+        expireIn: SESSION_LIFESPAN,
+      });
     } else {
-      throw new Error("INVALID_CREDENTIALS");
+      session = result.value;
     }
-  }
-  public async enqueGameEvent(kv: Deno.Kv, gameEvent: GameEvent) {
-    await kv.enqueue(gameEvent);
-  }
-
-  public async enqueInputEvent(kv: Deno.Kv, input: InputMessageEvent) {
-    await kv.enqueue(input);
-  }
-  public async getUserByID(kv: Deno.Kv, userID: string) {
-    return await kv.get<User>(["users", userID]);
-  }
-  public async createGame(kv: Deno.Kv, gameID: string, players: number) {
-    return await kv.set(["games", gameID], {
-      gameID,
-      active: true,
-      ready: 0,
-      total: players,
-    });
-  }
-  public async endGame(kv: Deno.Kv, gameID: string) {
-    return await kv.set(["games", gameID], { gameID, active: false });
-  }
-  public async updateGameReadyCount(kv: Deno.Kv, gameID: string) {
-    const game = await kv.get<{
-      gameID: string;
-      active: boolean;
-      ready: number;
-      total: number;
-    }>(["games", gameID]);
-    if (!game.value) {
-      throw new Error("GAME_NOT_FOUND");
-    }
-    game.value.ready++;
-    if (game.value.ready === game.value.total) {
-      game.value.active = false;
-    }
-    return await kv.set(["games", gameID], game.value);
-  }
-
-  public async getGameByID(kv: Deno.Kv, gameID: string) {
-    return await kv.get<{ gameID: string; active: boolean }>(["games", gameID]);
+    return session;
+  } else {
+    throw new Error("INVALID_PASSWORD");
   }
 }
-type GameStatus = {
-  gameID: string;
-  active: boolean;
-  ready: number;
-  total: number;
-};
+
+export async function enqueGameEvent(gameEvent: GameEvent) {
+  const kv = await Deno.openKv();
+  await kv.enqueue(gameEvent);
+}
+
+export async function enqueInputEvent(input: InputMessageEvent) {
+  const kv = await Deno.openKv();
+
+  await kv.enqueue(input);
+}
+
+export async function getUserByID(userID: string) {
+  const kv = await Deno.openKv();
+  return await kv.get<User>(["users", userID]);
+}
+
+export async function createGame(gameID: string, players: number) {
+  const kv = await Deno.openKv();
+  const gameStatus: GameStatus = {
+    gameID,
+    active: true,
+    ready: 0,
+    total: players,
+  };
+  const result = await kv.set(["games", gameID], gameStatus);
+  if (!result) {
+    throw new Error("CONFLICT");
+  }
+  return gameStatus;
+}
+
+export async function startGame(gameID: string) {
+  const kv = await Deno.openKv();
+  const game = await kv.get<GameStatus>(["games", gameID]);
+  if (!game.value) {
+    throw new Error("GAME_NOT_FOUND");
+  }
+  game.value.active = true;
+  await kv.set(["games", gameID], game.value);
+}
+
+export async function endGame(gameID: string) {
+  const kv = await Deno.openKv();
+  return await kv.set(["games", gameID], { gameID, active: false });
+}
+
+export async function updateGameReadyCount(gameID: string) {
+  const kv = await Deno.openKv();
+  const game = await kv.get<GameStatus>(["games", gameID]);
+  if (!game.value) {
+    throw new Error("GAME_NOT_FOUND");
+  }
+  game.value.ready++;
+  if (game.value.ready === game.value.total) {
+    game.value.active = false;
+  }
+  await kv.set(["games", gameID], game.value);
+}
+
+export async function getGameStatusByID(gameID: string) {
+  const kv = await Deno.openKv();
+  const result = await kv.get<GameStatus>(["games", gameID]);
+  if (!result.value) {
+    throw new Error("GAME_NOT_FOUND");
+  }
+  return result.value;
+}
+
+export async function getPlayerIDBySessionToken(sessionToken: string){
+  const kv = await Deno.openKv();
+  const result = await kv.get<Session>(["sessions", sessionToken]);
+  if (!result.value) {
+    // Unauthorized
+    throw new Error("INVALID_SESSION_TOKEN");
+  }
+  return result.value.userID;
+}
