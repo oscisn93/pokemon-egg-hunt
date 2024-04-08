@@ -3,10 +3,6 @@ import { Game } from "../client/src/game.ts";
 /**
  * The Matchmaker class handles the logic for matching players together.
  */
-interface MatchMaker {
-  playerQueue: string[];
-  gameStore: Record<string, Game>;
-}
 
 export class MatchMaker {
   private static instance: MatchMaker;

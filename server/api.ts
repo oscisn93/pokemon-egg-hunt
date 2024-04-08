@@ -1,9 +1,11 @@
 import { Context, Next, send } from "https://deno.land/x/oak@14.2.0/mod.ts";
-import { ServerSentEvent } from "https://deno.land/x/oak@14.2.0/mod.ts";
-import { v1 } from "https://deno.land/std@0.207.0/uuid/mod.ts";
-
 import { Database } from "./database.ts";
-import { GameEventType } from "../shared/enums.ts";
+import {
+  GameEvent,
+  InputMessageEvent,
+  isGameEvent,
+  isInputMessageEvent,
+} from "../shared/types.ts";
 
 // middleware for handling static files
 export async function staticFileHandler(ctx: Context, next: Next) {
@@ -32,7 +34,7 @@ export async function authRequestHandler(ctx: Context) {
         httpOnly: true,
       });
       ctx.response.redirect("/matches");
-    } catch(e) {
+    } catch (e) {
       switch (e.message) {
         case "INVALID_USERNAME":
           ctx.response.body = "Invalid username";
@@ -47,16 +49,67 @@ export async function authRequestHandler(ctx: Context) {
   }
 }
 
-export async function getGameEventSource(ctx: Context) {
+export async function gameRequestHandler(ctx: Context) {
+  // When a player is ready queue up a ready event
+  const gameEvent = {
+    type: "ready",
+    data: { gameID: "1", playerID: "1" },
+  } as GameEvent;
+  const db = Database.getInstance();
+  const kv = await Deno.openKv();
+  await db.enqueGameEvent(kv, gameEvent);
+  ctx.response.status = 200;
+}
+
+export async function gameEventHandler(ctx: Context) {
   const target = await ctx.sendEvents();
-  const userID = v1.generate() as string;
-  const gameEvent = new ServerSentEvent({
-    type: GameEventType.READY,
-    data: JSON.stringify({ userID }),
-    eventInit: { id: v1.generate() as string },
-  })
-  target.dispatchEvent(gameEvent);
+  // When a player joins queue up a join event
+  target.addEventListener("open", () => {
+    const gameEvent = {
+      type: "join",
+      data: { gameID: "1", playerID: "1" },
+    } as GameEvent;
+    kv.enqueue(gameEvent);
+  });
+  // When a player leaves queue up a leave event
   target.addEventListener("close", () => {
-    console.log("Event stream closed");
+    const gameEvent = {
+      type: "leave",
+      data: { gameID: "1", playerID: "1" },
+    } as GameEvent;
+    kv.enqueue(gameEvent);
+  });
+
+  // The queue listener will receive messages from the KV store
+  // and push them to the clients in realtime
+  const kv = await Deno.openKv();
+  kv.listenQueue((msg: unknown) => {
+    if (isGameEvent(msg)) {
+      target.dispatchEvent(msg);
+    } else {
+      console.error("Unknown message received:", msg);
+    }
+  });
+}
+
+export async function inputRequestHandler(ctx: Context) {
+  const data: InputMessageEvent = await ctx.request.body.json();
+  const kv = await Deno.openKv();
+  const db = Database.getInstance();
+  await db.enqueInputEvent(kv, data);
+  ctx.response.status = 200;
+}
+
+export async function inputEventHandler(ctx: Context) {
+  const target = await ctx.sendEvents();
+  // The queue listener will receive messages from the KV store
+  // and push them to the clients in realtime
+  const kv = await Deno.openKv();
+  kv.listenQueue((msg: unknown) => {
+    if (isInputMessageEvent(msg)) {
+      target.dispatchEvent(msg);
+    } else {
+      console.error("Unknown message received:", msg);
+    }
   });
 }
