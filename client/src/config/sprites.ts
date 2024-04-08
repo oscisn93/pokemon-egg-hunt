@@ -1,4 +1,4 @@
-import { loadSprite } from "./engine.ts";
+import { loadSprite } from "../lib/kaboom.ts";
 
 import {
   HOME_BUTTON,

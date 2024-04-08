@@ -3,7 +3,7 @@ import { ServerSentEvent } from "https://deno.land/x/oak@14.2.0/mod.ts";
 import { v1 } from "https://deno.land/std@0.207.0/uuid/mod.ts";
 
 import { Database } from "./database.ts";
-import { GameEventType } from "../client/src/types/enums.ts";
+import { GameEventType } from "../shared/enums.ts";
 
 // middleware for handling static files
 export async function staticFileHandler(ctx: Context, next: Next) {

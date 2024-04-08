@@ -6,7 +6,7 @@ import {
 } from "https://deno.land/x/oak@14.2.0/mod.ts";
 
 import { authRequestHandler, staticFileHandler } from "./api.ts";
-import { ServerOptions } from "../client/src/types/types.ts";
+import { ServerOptions } from "../shared/types.ts";
 
 const options: ServerOptions = {
   port: 3000,

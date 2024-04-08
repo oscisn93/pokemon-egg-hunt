@@ -1,49 +1,29 @@
-import { PlayerEventType } from "./types/enums.ts";
-import { Coordinates, SocketID } from "./types/types.ts";
+import {  KeyBoardEventData } from "../../shared/types.ts";
+import { Game } from "./game.ts";
 
-export class StateClient {
-  private ws: WebSocket;
-  private socketID: SocketID;
-  private gameID: string;
-  constructor(gameID: string) {
-    this.gameID = gameID;
-    this.ws = new WebSocket("ws://localhost:3000/ws");
-    this.socketID = "";
+export class GameState {
+  public static instance: GameState;
+  private eventSource: EventSource;
+  private game: Game;
+  private constructor(gameID: string) {
+    this.game = Game.getInstance(gameID);
+    this.eventSource = new EventSource(`/events/${gameID}`, {
+      withCredentials: true,
+    });
+    this.eventSource.addEventListener("game", (event) => {
+      this.game.onGameEvent(event);
+    });
+    this.eventSource.addEventListener("keyboard", (event) => {
+      const keyboardEvent: KeyBoardEventData = JSON.parse(event.data);
+      this.game.sendKeyBoardEvent(keyboardEvent);
+    });
+    GameState.instance = this;
+  }
 
-    this.ws.onopen = () => {
-      if (this.socketID) return;
-      this.join();
-    };
-    this.ws.onmessage = (message) => {
-      const parsedMessage = JSON.parse(message.data);
-      if (parsedMessage.type === PlayerEventType.JOIN) {
-        this.socketID = parsedMessage.socketID;
-        const response = JSON.stringify({
-          type: PlayerEventType.JOIN,
-          socketID: this.socketID,
-          gameID: this.gameID,
-        });
-        this.ws.send(response);
-      }
-    };
-    this.ws.onclose = () => {
-      console.log("Disconnected from server");
-    };
-  }
-  private join() {
-    const message = JSON.stringify({
-      type: PlayerEventType.JOIN,
-      socketID: this.gameID,
-    });
-    this.ws.send(message);
-  }
-  private move(pos: Coordinates) {
-    const message = JSON.stringify({
-      type: PlayerEventType.MOVEMENT,
-      socketID: this.socketID,
-      gameID: this.gameID,
-      pos,
-    });
-    this.ws.send(message);
+  public static getInstance(gameID: string): GameState {
+    if (!GameState.instance) {
+      GameState.instance = new GameState(gameID);
+    }
+    return GameState.instance;
   }
 }

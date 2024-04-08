@@ -14,6 +14,7 @@ export const FOUNTAIN_SPRITE = "sprites/fountain.png";
 export const GARDEN = "garden";
 export const GARDEN_SPRITE = "sprites/garden.png";
 // player sprites
+export const PLAYER = "player";
 export const PLAYER_F = "player-f";
 export const PLAYER_F_SPRITE = "sprites/player-f.png";
 export const PLAYER_F2 = "player-f2";
@@ -35,14 +36,48 @@ export const PLAYER_M4_SPRITE = "sprites/player-m4.png";
 export const PLAYER_M5 = "player-m5";
 export const PLAYER_M5_SPRITE = "sprites/player-m5.png";
 // sprite animation configurations
+export enum PlayerFrame {
+  DOWN_STANDING = 0,
+  DOWN_START = 1,
+  DOWN_MIDDLE = 2,
+  DOWN_END = 3,
+  LEFT_STANDING = 4,
+  LEFT_START = 5,
+  LEFT_MIDDLE = 6,
+  LEFT_END = 7,
+  RIGHT_STANDING = 8,
+  RIGHT_START = 9,
+  RIGHT_MIDDLE = 10,
+  RIGHT_END = 11,
+  UP_STANDING = 12,
+  UP_START = 13,
+  UP_MIDDLE = 14,
+  UP_END = 15,
+}
 export const playerAnimConfig = {
   sliceX: 4,
   sliceY: 4,
   anims: {
-    walkDown: { from: 0, to: 3, loop: true },
-    walkLeft: { from: 4, to: 7, loop: true },
-    walkRight: { from: 8, to: 11, loop: true },
-    walkUp: { from: 12, to: 15, loop: true },
+    walkDown: {
+      from: PlayerFrame.DOWN_START,
+      to: PlayerFrame.DOWN_END,
+      loop: true
+    },
+    walkLeft: {
+      from: PlayerFrame.LEFT_START,
+      to: PlayerFrame.LEFT_END,
+      loop: true
+    },
+    walkRight: {
+      from: PlayerFrame.RIGHT_START,
+      to: PlayerFrame.RIGHT_END,
+      loop: true
+    },
+    walkUp: {
+      from: PlayerFrame.UP_START,
+      to: PlayerFrame.UP_END,
+      loop: true
+    },
   },
 };
 export const fountainAnimConfig = {

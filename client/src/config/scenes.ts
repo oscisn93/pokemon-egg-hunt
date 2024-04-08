@@ -18,11 +18,8 @@ import {
   camScale,
   color,
   z,
-  onUpdate,
-  onCollide,
-} from "./engine.ts";
+} from "../lib/kaboom.ts";
 import { forestMap } from "./maps.ts";
-import Player from "../entities/player.ts";
 
 export function homeScene() {
   setBackground(6, 25, 50);
@@ -59,8 +56,6 @@ export function forestScene() {
       a: () => [sprite("garden"), z(-1), scale(1.2), pos(512, 760)],
     },
   });
-  
-  const player = new Player();
 
   const fountain = add([
     sprite("fountain", { frame: 0, animSpeed: 0.15 }),
@@ -70,11 +65,7 @@ export function forestScene() {
     body({ isStatic: true }),
   ]);
   fountain.play("run");
-  onUpdate(() => {
-    player.onUpdate();
-  });
-  onCollide("player", "+", () => player.onCollision());
-  onCollide("player", "*", () => player.onCollision());
+
   camScale(0.5, 0.5);
 }
 

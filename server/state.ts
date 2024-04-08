@@ -1,4 +1,4 @@
-import { Coordinates } from "../client/src/types/types.ts";
+import { Coordinates } from "../shared/types.ts";
 
 export default class State {
   private gameID: string;

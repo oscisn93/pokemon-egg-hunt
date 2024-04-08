@@ -12,7 +12,7 @@ const env = Deno.env.get("DENO_ENV");
 
 const buildOptions: BuildOptions = {
   plugins: [...denoPlugins({ configPath: "./deno.json" })],
-  entryPoints: ["./client/src/**.ts", "./client/src/config/**.ts"],
+  entryPoints: ["./client/src/**.ts", "./client/src/config/**.ts", "./client/src/lib/**.**"],
   outdir: "./client/dist",
   bundle: true,
   loader: {

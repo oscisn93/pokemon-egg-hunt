@@ -1,4 +1,4 @@
-import { GameEventType } from "./enums.ts";
+import { KeyBoardEventType, PokemonEggStatus } from "./enums.ts";
 
 export type Coordinates = {
   x: number;
@@ -11,11 +11,20 @@ export interface ServerOptions {
   port: number;
 }
 
-export interface GameEvent {
-  type: GameEventType;
+export type GameEvent = {
   gameID?: string;
-  socketID?: SocketID;
+  playerID?: string;
   value?: number | string | Coordinates;
+};
+
+export type KeyBoardEventData = {
+  key: KeyBoardEventType;
+  playerID: string;
+};
+
+export interface KeyBoardEventMessage {
+  type: KeyBoardEventType;
+  data: KeyBoardEventData;
 }
 
 export type GameLobby = {
