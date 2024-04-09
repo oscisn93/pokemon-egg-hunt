@@ -12,48 +12,23 @@ import { accessToken } from "https://deno.land/x/access_token@1.0.0/mod.ts";
 const SESSION_LIFESPAN = 1000 * 60 * 60 * 24;
 export const SECRET = "SHHHH...IT's-A_SECRET";
 
-export async function createUser(user: User & { password: string }) {
-  const passhash = await hash(user.password);
-  user.userID = v1.generate() as string;
+export async function loginUser(username: string, password: string) {
   const kv = await Deno.openKv();
-  kv.set(["passwords", user.userID!], passhash);
-  const result = await kv.set(["users", user.userID], {
-    userID: v1.generate(),
-    username: user.username,
-  });
-  if (!result) {
-    throw new Error("CONFILCT");
+  const userResult = await kv.get<User>(["users_by_username", username]);
+  if (!userResult.value) {
+    throw new Error("USER_NOT_FOUND");
   }
-  const token = accessToken.generate("uat", SECRET);
-  const session: Session = {
-    userID: user.userID,
-    token,
-  };
-  kv.set(["sessions", token], session, { expireIn: SESSION_LIFESPAN });
-  return session;
-}
-export async function authUser(username: string, password: string) {
-  const kv = await Deno.openKv();
-  const user_result = await kv.get<User>(["users", username]);
-  if (!user_result.value) {
-    throw new Error("INVALID_USERNAME");
-  }
-  const user = user_result.value;
-  const pass_result = await kv.get<string>(["passwords", user.userID!]);
-  if (!pass_result.value) {
-    throw new Error("SERVER_ERROR");
-  }
-  const passhash = pass_result.value;
-  if (await compare(password, passhash)) {
+  const user = userResult.value;
+  if (await compare(password, user.password!)) {
     let session: Session | undefined;
-    const result = await kv.get<Session>(["sessions", user.userID!]);
+    const result = await kv.get<Session>(["sessions_by_id", user.id!]);
     if (!result.value) {
       const token = accessToken.generate("uat", SECRET);
       session = {
-        userID: user.userID!,
+        userID: user.id!,
         token,
       };
-      kv.set(["sessions", user.userID!], session, {
+      kv.set(["sessions", user.id!], session, {
         expireIn: SESSION_LIFESPAN,
       });
     } else {
@@ -63,6 +38,54 @@ export async function authUser(username: string, password: string) {
   } else {
     throw new Error("INVALID_PASSWORD");
   }
+}
+
+export async function createUser(username: string, password: string) {
+  // hash password before inserting into the db
+  const passhash = await hash(password);
+  // create our user object with a unique id
+  const user: User = {
+    id: v1.generate().toString().split(",").join(""),
+    username,
+    password: passhash,
+  };
+
+  const primaryKey = ["users", user.id];
+  const byUsernameKey = ["users_by_username", user.username];
+
+  const kv = await Deno.openKv();
+  const result = await kv
+    .atomic()
+    .check({ key: primaryKey, versionstamp: null })
+    .check({ key: byUsernameKey, versionstamp: null })
+    .set(primaryKey, user)
+    .set(byUsernameKey, user)
+    .commit();
+
+  if (!result.ok) {
+    throw new Error("INTERNAL_CONFILCT");
+  }
+
+  const token = accessToken.generate("uat", SECRET);
+  const session: Session = {
+    userID: user.id,
+    token,
+  };
+
+  const resultSession = await kv
+    .atomic()
+    .check({ key: ["sessions", session.token], versionstamp: null })
+    .check({ key: ["sessions_by_id", session.userID], versionstamp: null })
+    .set(["sessions", token], session, { expireIn: SESSION_LIFESPAN })
+    .set(["sessions_by_userID", user.id], session, {
+      expireIn: SESSION_LIFESPAN,
+    })
+    .commit();
+
+  if (!resultSession.ok) {
+    throw new Error("INTERNAL_CONFLICT");
+  }
+  return session;
 }
 
 export async function enqueGameEvent(gameEvent: GameEvent) {
@@ -79,6 +102,14 @@ export async function enqueInputEvent(input: InputMessageEvent) {
 export async function getUserByID(userID: string) {
   const kv = await Deno.openKv();
   return await kv.get<User>(["users", userID]);
+}
+export async function getUserByUsername(username: string) {
+  const kv = await Deno.openKv();
+  const result = await kv.get<User>(["users", username]);
+  if (!result.value) {
+    console.error("USER_NOT_FOUND");
+  }
+  return result;
 }
 
 export async function createGame(gameID: string, players: number) {
@@ -133,7 +164,7 @@ export async function getGameStatusByID(gameID: string) {
   return result.value;
 }
 
-export async function getPlayerIDBySessionToken(sessionToken: string){
+export async function getPlayerIDBySessionToken(sessionToken: string) {
   const kv = await Deno.openKv();
   const result = await kv.get<Session>(["sessions", sessionToken]);
   if (!result.value) {

@@ -1,4 +1,5 @@
 import { Context, Next, send } from "https://deno.land/x/oak@14.2.0/mod.ts";
+import { accessToken } from "https://deno.land/x/access_token@1.0.0/mod.ts";
 
 import {
   GameEvent,
@@ -7,19 +8,23 @@ import {
   isGameEvent,
   isInputMessageEvent,
 } from "../shared/types.ts";
+
 import {
-  authUser,
+  loginUser,
+  createUser,
   enqueGameEvent,
   enqueInputEvent,
   getGameStatusByID,
   getPlayerIDBySessionToken,
   SECRET,
 } from "./database.ts";
-import { accessToken } from "https://deno.land/x/access_token@1.0.0/mod.ts";
 
 // middleware for handling static files
 export async function staticFileHandler(ctx: Context, next: Next) {
-  if (ctx.request.url.pathname.startsWith("/api/")) {
+  if (
+    ctx.request.url.pathname.startsWith("/api/") ||
+    ctx.request.url.pathname.startsWith("/sse/")
+  ) {
     await next();
   } else {
     await send(ctx, ctx.request.url.pathname, {
@@ -33,48 +38,74 @@ export async function staticFileHandler(ctx: Context, next: Next) {
 export async function authMiddleware(ctx: Context, next: Next) {
   // only check the cookie for /api requests
   if (ctx.request.url.pathname.startsWith("/api")) {
-    const session = ctx.cookies.get("session");
-    if (session) {
-      ctx.state.session = session;
+    if (ctx.state.session) {
+      if (!accessToken.validate(ctx.state.session, SECRET)) {
+        ctx.state.session = null;
+        ctx.response.redirect("/login");
+      }
       await next();
     } else {
       ctx.state.session = null;
-      ctx.response.redirect("/auth");
+      ctx.response.redirect("/login");
     }
   } else {
     await next();
   }
 }
-// handles both register and login requests
-export async function authRequestHandler(ctx: Context) {
-  const data = await ctx.request.body.formData();
+
+export async function registerHandler(ctx: Context) {
+  const data = await ctx.request.body.form();
+  console.log(data);
   if (data) {
-    const username = data.get("username") as string;
-    const password = data.get("password") as string;
+    const username = data.get("username");
+    const password = data.get("password");
+    if (!username || !password) {
+      ctx.response.body = "Invalid input";
+      return;
+    }
     try {
-      const session = await authUser(username, password);
+      const session = await createUser(username, password);
       ctx.cookies.set("session", session.token, {
         exprires: new Date().getTime() + 1000 * 60 * 60 * 24,
         httpOnly: true,
       });
-      ctx.response.redirect("/matches");
+      ctx.state.session = session;
+      ctx.response.status = 201;
     } catch (e) {
-      switch (e.message) {
-        case "INVALID_USERNAME":
-          ctx.response.body = "Invalid username";
-          break;
-        case "INVALID_PASSWORD":
-          ctx.response.body = "Invalid password";
-          break;
-        default:
-          ctx.response.body = "Server error";
-      }
+      ctx.response.status = 500;
+      ctx.response.body = e.message;
+    }
+  }
+}
+
+export async function loginHandler(ctx: Context) {
+  const data = await ctx.request.body.form();
+  console.log(data);
+  if (data) {
+    const username = data.get("username");
+    const password = data.get("password");
+    if (!username || !password) {
+      ctx.response.body = "Invalid input";
+      return;
+    }
+    try {
+      const session = await loginUser(username, password);
+      ctx.cookies.set("session", session.token, {
+        exprires: new Date().getTime() + 1000 * 60 * 60 * 24,
+        httpOnly: true,
+      });
+      ctx.state.session = session;
+      ctx.response.status = 200;
+    } catch (e) {
+      ctx.response.status = 500;
+      ctx.response.body = e.message;
     }
   }
 }
 
 export async function gameRequestHandler(ctx: Context) {
   const sessionToken = ctx.state.session;
+  console.log(sessionToken);
   if (!accessToken.validate(sessionToken, SECRET)) {
     // Unauthorized
     ctx.response.status = 401;
@@ -90,7 +121,7 @@ export async function gameRequestHandler(ctx: Context) {
     ctx.response.body = e.message;
     return;
   }
-  
+
   const params = ctx.request.url.searchParams;
   const gameID = params.get("gameID");
   if (!gameID) {
@@ -103,7 +134,7 @@ export async function gameRequestHandler(ctx: Context) {
 
   try {
     gameStatus = await getGameStatusByID(gameID);
-  } catch(e) {
+  } catch (e) {
     // Not Found
     ctx.response.status = 404;
     ctx.response.body = e.message;

@@ -70,14 +70,15 @@ export function isInputMessageEvent(o: unknown): o is InputMessageEvent {
   );
 }
 export type User = {
-  userID: string;
+  id: string;
   username: string;
-}
+  password?: string;
+};
 
 export type Session = {
   userID: string;
   token: string;
-}
+};
 
 export type GameStatus = {
   gameID: string;

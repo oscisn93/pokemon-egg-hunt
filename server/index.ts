@@ -2,7 +2,8 @@ import { Application, Router } from "https://deno.land/x/oak@14.2.0/mod.ts";
 
 import {
   authMiddleware,
-  authRequestHandler,
+  loginHandler,
+  registerHandler,
   gameRequestHandler,
   gameEventHandler,
   inputRequestHandler,
@@ -13,14 +14,15 @@ import {
 const port = Deno.env.get("PORT") || "3000";
 const app = new Application();
 const router = new Router();
-
-router.post("/auth", authRequestHandler);
+// auth routes
+router.post("/login", loginHandler);
+router.post("/register", registerHandler);
 // user sent events
 router.post("/api/game/:gameID", gameRequestHandler);
 router.post("/api/input/:gameID", inputRequestHandler);
 // server sent events
-router.get("/sse/game/:gameID", gameEventHandler);
-router.get("/sse/input/:gameID", inputEventHandler);
+router.get("/api/sse/game/:gameID", gameEventHandler);
+router.get("/api/sse/input/:gameID", inputEventHandler);
 
 app.use(router.routes());
 app.use(authMiddleware);
