@@ -23,7 +23,7 @@ import {
 export async function staticFileHandler(ctx: Context, next: Next) {
   if (
     ctx.request.url.pathname.startsWith("/api/") ||
-    ctx.request.url.pathname.startsWith("/sse/")
+    ctx.request.url.pathname.startsWith("/api/sse/")
   ) {
     await next();
   } else {
@@ -38,15 +38,15 @@ export async function staticFileHandler(ctx: Context, next: Next) {
 export async function authMiddleware(ctx: Context, next: Next) {
   // only check the cookie for /api requests
   if (ctx.request.url.pathname.startsWith("/api")) {
-    if (ctx.state.session) {
-      if (!accessToken.validate(ctx.state.session, SECRET)) {
+    if (ctx.state.token) {
+      if (!accessToken.validate(ctx.state.token, SECRET)) {
         ctx.state.session = null;
         ctx.response.redirect("/login");
       }
       await next();
     } else {
       ctx.state.session = null;
-      ctx.response.redirect("/login");
+      ctx.response.redirect("/");
     }
   } else {
     await next();
@@ -104,15 +104,8 @@ export async function loginHandler(ctx: Context) {
 }
 
 export async function gameRequestHandler(ctx: Context) {
-  const sessionToken = ctx.state.session;
-  console.log(sessionToken);
-  if (!accessToken.validate(sessionToken, SECRET)) {
-    // Unauthorized
-    ctx.response.status = 401;
-    return;
-  }
-
   let playerID: string;
+  const sessionToken = ctx.state.session.token as string;
   try {
     playerID = await getPlayerIDBySessionToken(sessionToken);
   } catch (e) {
@@ -155,12 +148,13 @@ export async function gameRequestHandler(ctx: Context) {
 }
 
 export async function gameEventHandler(ctx: Context) {
+  const userID = ctx.state.session.userID as string;
   const target = await ctx.sendEvents();
   // When a player joins queue up a join event
   target.addEventListener("open", async () => {
     const gameEvent = {
       type: "join",
-      data: { gameID: "1", playerID: "1" },
+      data: { gameID: "1", playerID: userID },
     } as GameEvent;
     await enqueGameEvent(gameEvent);
   });
@@ -168,7 +162,7 @@ export async function gameEventHandler(ctx: Context) {
   target.addEventListener("close", async () => {
     const gameEvent = {
       type: "leave",
-      data: { gameID: "1", playerID: "1" },
+      data: { gameID: "1", playerID: userID },
     } as GameEvent;
     await enqueGameEvent(gameEvent);
   });

@@ -15,17 +15,18 @@ const port = Deno.env.get("PORT") || "3000";
 const app = new Application();
 const router = new Router();
 // auth routes
+app.use(authMiddleware);
 router.post("/login", loginHandler);
 router.post("/register", registerHandler);
 // user sent events
 router.post("/api/game/:gameID", gameRequestHandler);
 router.post("/api/input/:gameID", inputRequestHandler);
 // server sent events
-router.get("/api/sse/game/:gameID", gameEventHandler);
-router.get("/api/sse/input/:gameID", inputEventHandler);
+router.get("/api/sse/game", gameEventHandler);
+router.get("/api/sse/input", inputEventHandler);
 
 app.use(router.routes());
-app.use(authMiddleware);
+
 app.use(staticFileHandler);
 
 await app.listen({ port: parseInt(port) });

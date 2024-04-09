@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE Testing</title>
+</head>
+
+<body>
+    <div id="result">
+        <h1>Result</h1>
+        <div id="message"></div>
+    </div>
+</body>
+<script>
+    const eventSource = new EventSource('http://localhost:3000/api/sse/game');
+    console.log(eventSource);
+    const messageElement = document.getElementById('message');
+    eventSource.onopen = (event) => {
+        console.log('Connection opened');
+    };
+    eventSource.onerror = (event) => {
+        console.log('Error: ', event);
+    };
+
+    eventSource.onmessage = (event) => {
+        console.log('Message: ', event.data);
+    };
+
+    eventSource.addEventListener('game', (event) => {
+        const newElement = document.createElement('div');
+        newElement.textContent = event.data;
+        messageElement.appendChild(newElement);
+    });
+
+</script>
+
+</html>
