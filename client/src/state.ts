@@ -1,4 +1,4 @@
-import {  KeyBoardEventData } from "../../shared/types.ts";
+import {  InputEventData } from "../../shared/types.ts";
 import { Game } from "./game.ts";
 
 export class GameState {
@@ -14,7 +14,7 @@ export class GameState {
       this.game.onGameEvent(event);
     });
     this.eventSource.addEventListener("keyboard", (event) => {
-      const keyboardEvent: KeyBoardEventData = JSON.parse(event.data);
+      const keyboardEvent: InputEventData = JSON.parse(event.data);
       this.game.sendKeyBoardEvent(keyboardEvent);
     });
     GameState.instance = this;
