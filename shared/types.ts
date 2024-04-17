@@ -6,6 +6,7 @@ export type GameEventData = {
   gameID: string;
   playerID: string;
 };
+// NOTE: Use the message event constructor instead of duck-typing it
 // GameEvent implements of the MessageEvent interface
 export type GameEvent = MessageEvent<GameEventData>;
 // this type-guard function checks if the given object is a GameEventData
