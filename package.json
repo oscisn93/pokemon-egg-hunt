@@ -1,0 +1,19 @@
+{
+  "name": "pokemon-egg-hunt",
+  "version": "1.0.0",
+  "description": "2D multiplayer online pokemon game",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node index.js"
+  },
+  "author": "BigO",
+  "license": "ISC",
+  "dependencies": {
+    "fastify": "^4.27.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.11",
+    "typescript": "^5.4.5"
+  }
+}
