@@ -25,7 +25,7 @@ import {
   onCollide,
   shake,
 } from "./engine.ts";
-import { forestMap } from "./maps.ts";
+import { forestMap } from "./config.ts";
 import {
   downDown,
   downPress,
@@ -40,7 +40,7 @@ import {
   upPress,
   upRelease,
 } from "./players.ts";
-import { GameObj } from "npm:kaboom@3000.1.17";
+import { GameObj } from "kaboom";
 
 export function homeScene() {
   setBackground(6, 25, 50);

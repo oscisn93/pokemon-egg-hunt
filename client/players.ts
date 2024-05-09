@@ -1,9 +1,6 @@
-import { GameObj } from "npm:kaboom@3000.1.17";
+import { GameObj } from "kaboom";
 
-/** wrapt the kaboom gameobject with some handlers for
- * player movement based on keypresses and releases
- */
-export const PLAYER_SPEED = 300;
+const PLAYER_SPEED = 200;
 
 export function leftDown(player: GameObj) {
   player.move(-PLAYER_SPEED, 0);
@@ -42,7 +39,6 @@ export function upRelease(player: GameObj) {
   player.stop();
   player.frame = 12;
 }
-
 export function downRelease(player: GameObj) {
   player.stop();
   player.frame = 0;

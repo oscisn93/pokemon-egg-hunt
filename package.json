@@ -10,10 +10,13 @@
   "author": "BigO",
   "license": "ISC",
   "dependencies": {
-    "fastify": "^4.27.0"
+    "@fastify/websocket": "^10.0.1",
+    "fastify": "^4.27.0",
+    "kaboom": "^3000.1.17"
   },
   "devDependencies": {
     "@types/node": "^20.12.11",
+    "@types/ws": "^8.5.10",
     "typescript": "^5.4.5"
   }
 }

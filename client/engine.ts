@@ -1,8 +1,8 @@
-import KaboomGameEngine from "npm:kaboom@3000.1.17";
+import Engine from "kaboom";
 
 const canvasElement = document.getElementById("game") as HTMLCanvasElement;
 
-const engine = KaboomGameEngine({
+const engine = Engine({
   width: 640,
   height: 480,
   scale: 1,
