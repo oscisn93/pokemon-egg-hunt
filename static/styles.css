@@ -5,6 +5,15 @@ body {
   background-color: #54292e;
   padding: 20px;
   font-weight: bold;
+  box-sizing: border-box;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+.wrapper {
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
 }
 
 .logo-container {
@@ -15,8 +24,9 @@ body {
 }
 
 .logo-img {
-  width: 50%;
+  width: 568px;
   margin: 2em;
+  margin-bottom: 5rem;
   border-radius: 0.5em;
   border: 0.1em solid rgb(187, 16, 50);
 }
@@ -37,12 +47,11 @@ h1 {
 }
 
 .form-group {
+  display: flex;
+  flex-direction: column;
   margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
+  align-items: center;
+  align-content: center;
 }
 
 .form-group input {
@@ -53,6 +62,7 @@ h1 {
   border: 1px solid #e1e4e8;
   border-radius: 6px;
   box-sizing: border-box;
+  margin-bottom: 1rem;
 }
 
 button {
@@ -63,7 +73,6 @@ button {
   border: none;
   border-radius: 6px;
   padding: 10px 20px;
-  cursor: pointer;
 }
 
 button:hover {
@@ -82,7 +91,6 @@ button:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
 }
 
 #game {
@@ -93,10 +101,8 @@ button:hover {
 
 footer {
   text-align: center;
-  align-items: baseline;
   min-height: 2em;
   font-size: 14px;
-  margin-top: 20px;
 }
 
 a {
