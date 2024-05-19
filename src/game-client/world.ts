@@ -1,15 +1,15 @@
 import {loadAssets} from './config';
-import {go, loadSprite, scene} from './engine';
 import {forestScene, homeScene, loseScene} from './scenes';
 import {Game} from './game'
+import type { KaboomCtx } from 'kaboom';
 
-class World implements Game {
-  constructor() {
-    loadAssets(loadSprite);
-    scene('home', () => homeScene());
-    scene('forest', () => forestScene());
-    scene('lose', () => loseScene());
-    go('home');
+export class World implements Game {
+  constructor(engine: KaboomCtx) {
+    loadAssets(engine.loadSprite);
+    engine.scene('home', () => homeScene());
+    engine.scene('forest', () => forestScene());
+    engine.scene('lose', () => loseScene());
+    engine.go('home');
   }
   public actions(state: { to_move: number; utility: number; board: string[]; moves: { type: string; data: any; }[]; }): { type: string; data: any; }[] {
     throw new Error('Method not implemented.');

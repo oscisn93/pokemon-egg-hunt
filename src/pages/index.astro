@@ -1,0 +1,38 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+<Layout>
+  <main id="content">
+    <div class="signup-container">
+      <h1>Choose a Username</h1>
+      <form
+        hx-post="/api/auth/"
+        hx-target="#content"
+        class="create-player-form"
+      >
+        <div class="form-group">
+          <input type="text" id="username" name="username" required />
+          <button id="begin-button" type="submit">Begin</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  // import { createUser } from "../firebase/client";
+
+  // const button = document.getElementById("begin-button");
+
+  // button?.addEventListener("click", (ev) => {
+  //   ev.preventDefault();
+  //   const usernameInput = document.getElementById("username");
+  //   const username = usernameInput?.textContent;
+    
+  //   if (username) {
+  //     createUser(username);
+  //   } else {
+  //     throw Error("must enter a username");
+  //   }
+  // });
+</script>
