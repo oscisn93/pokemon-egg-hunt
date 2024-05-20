@@ -1,4 +1,4 @@
-import { GameObj } from "kaboom";
+import type { GameObj } from "kaboom";
 
 const PLAYER_SPEED = 200;
 

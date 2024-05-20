@@ -17,5 +17,5 @@ jobs:
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_POKEMON_EGG_HUNT }}
-          projectId: pokemon-egg-hunt
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_POKEMON_EGG_HUNT_B4AEA }}
+          projectId: pokemon-egg-hunt-b4aea

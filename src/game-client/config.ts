@@ -1,31 +1,15 @@
-import { Color } from "kaboom";
-import { BROWN, DARK_GREEN, GREEN } from "./constants";
-
-type TileConfig = {
-  shape?: string;
-  color?: Color;
-  dimensions?: [number, number];
-  depth?: number;
-  scale?: number;
-  sprite?: {
-    name: string;
-    frame: number;
-  };
-  isStatic: boolean;
-};
-
-export const TileConfigs: Record<string, TileConfig> = {
+export const TileConfigs = {
   grass: {
     shape: "*",
-    color: GREEN,
+    color: [130, 170, 80],
     dimensions: [256, 256],
     depth: -1,
     isStatic: false,
   },
-  dirt: { shape: " ", color: BROWN, dimensions: [256, 256], isStatic: false },
+  dirt: { shape: " ", color: [217, 145, 83], dimensions: [256, 256], isStatic: false },
   forest_floor: {
     shape: "+",
-    color: DARK_GREEN,
+    color: [139, 177, 80],
     dimensions: [256, 256],
     isStatic: false,
   },
