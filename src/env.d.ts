@@ -9,6 +9,7 @@ interface ImportMetaEnv {
   readonly TOKEN_URI: string;
   readonly AUTH_CERT_URL: string;
   readonly CLIENT_CERT_URL: string;
+  readonly DATABASE_URL: string;
   readonly API_KEY: string;
   readonly AUTH_DOMAIN: string;
   readonly STORAGE_BUCKET_ID: string;

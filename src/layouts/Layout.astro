@@ -1,22 +1,27 @@
 ---
-import '../static/global.css';
-import AppLogo from '../static/sprites/logo.png';
-import Image from 'astro/components/Image.astro';
+import "../static/global.css";
+import AppLogo from "../static/sprites/logo.png";
+import Image from "astro/components/Image.astro";
+import Emoji from "astro-emoji";
 ---
 
 <html>
-<head>
-	<title>Pokemon Egg Hunt</title>
-</head>
-<body>
-	<div class="wrapper">
-		<header class="logo-container">
-			<Image class="logo-img" src={AppLogo} alt="Pokemon Logo" />
-		</header>
-        <slot />
-		<footer>
-			<p>Made with ❤️ by <a href="https://github.com/oscisn93" target="_blank">Oscar Cisneros</a></p>
-		</footer>
-	</div>
-</body>
+  <head>
+    <title>Pokemon Egg Hunt</title>
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="logo-container">
+        <Image class="logo-img" src={AppLogo} alt="Pokemon Logo" />
+      </header>
+      <slot />
+      <footer>
+        <p>
+          Made with <Emoji symbol="❤️" label="love" /> by <a
+            href="https://github.com/oscisn93"
+            target="_blank">Oscar Cisneros</a>
+        </p>
+      </footer>
+    </div>
+  </body>
 </html>

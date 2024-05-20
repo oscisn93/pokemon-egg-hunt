@@ -6,7 +6,7 @@ const serviceAccount = {
   type: "service_account",
   project_id: import.meta.env.PROJECT_ID,
   private_key_id: import.meta.env.PRIVATE_KEY_ID,
-  private_key: import.meta.env.PRIVATE_KEY,
+  private_key: import.meta.env.PRIVATE_KEY.replace(/\\n/gm, "\n"),
   client_email: import.meta.env.CLIENT_EMAIL,
   client_id: import.meta.env.CLIENT_ID,
   auth_uri: import.meta.env.AUTH_URI,
